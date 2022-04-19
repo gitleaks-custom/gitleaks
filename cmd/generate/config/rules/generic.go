@@ -35,7 +35,8 @@ func GenericCredential() *config.Rule {
 
 	// validate
 	tps := []string{
-		generateSampleSecret("generic", "8dyfuiRyq=vVc3RRr_edRk-fK__JItpZ"),
+		generateSampleSecret("generic", "***REMOVED***"),
+		generateSampleSecret("generic", "Zf3D0LXCM3EIMbgJpUNnkRtOfOueHznB"),
 	}
 	return validate(r, tps)
 }
