@@ -46,12 +46,11 @@ changelog:
 
 # Homebrew 배포를 위한 스크립트
 brews:
-  - name: gitleaks@{{ .Major }}.{{ .Minor }}.{{ .Patch }}
+  - name: gitleaks@{{ .Tag }}
     license: 'mit'
     repository:
       owner: 'heechankim-gitleaks' # == Organization Name
       name: 'homebrew-gitleaks-tap' # == "homebrew-" + Repository Name
-      branch: lgu-master
     folder: Formula
     url_template: "https://github.com/heechankim-gitleaks/gitleaks/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
