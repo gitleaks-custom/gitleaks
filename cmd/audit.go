@@ -55,6 +55,8 @@ func runAudit(cmd *cobra.Command, args []string) {
 
 	backendUrl, _ := GitConfig.GetGitleaksConfig("url")
 
+	fmt.Println("Backend URL: ", backendUrl)
+
 	u, err := url.Parse(backendUrl)
 	// net/url Parsing Error
 	if err != nil {
