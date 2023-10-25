@@ -1,6 +1,7 @@
 package GitConfig
 
 import (
+	"fmt"
 	"os"
 	"strings"
 )
@@ -40,7 +41,7 @@ func EnableGitHooks(filepath string, script string) {
 
 	err := os.WriteFile(filepath, []byte(newContent.String()), 0755)
 	if err != nil {
-		// fmt.Printf("Error Appending PreCommit Script: %v\n", err)
+		fmt.Printf("Error Appending PreCommit Script: %v\n", err)
 		return
 	}
 }
@@ -59,7 +60,7 @@ func DisableGitHooks(filepath string, script string) {
 
 	err := os.WriteFile(filepath, []byte(newContent), 0755)
 	if err != nil {
-		// fmt.Printf("Error Appending PreCommit Script: %v\n", err)
+		fmt.Printf("Error Appending PreCommit Script: %v\n", err)
 		return
 	}
 }

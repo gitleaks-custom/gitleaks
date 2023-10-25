@@ -73,7 +73,7 @@ func runAudit(cmd *cobra.Command, args []string) {
 	resp, err := client.Do(req)
 	// net/http client Error - Request 오류 시 백엔드 통신 X
 	if err != nil {
-		// fmt.Printf("Error http request, %v\n", err)
+		fmt.Printf("Error http request, %v\n", err)
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -90,7 +90,7 @@ func runAudit(cmd *cobra.Command, args []string) {
 
 	responseGitConfig := responseData.Data.(map[string]interface{})["GitConfig"].(map[string]interface{})
 	for k, v := range responseGitConfig {
-		// fmt.Printf("%s: %s\n", k, fmt.Sprintf("%v", v))
+		fmt.Printf("%s: %s\n", k, fmt.Sprintf("%v", v))
 		GitConfig.SetGitleaksConfig(k, fmt.Sprintf("%v", v))
 	}
 
