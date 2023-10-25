@@ -17,13 +17,45 @@ builds:
       - "7"
     ldflags:
       - -s -w -X=github.com/zricethezav/gitleaks/v8/cmd.Version={{.Version}}
+
 archives:
-  - builds: [gitleaks]
+  - format: tar.gz
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    # use zip for windows archives
     format_overrides:
       - goos: windows
         format: zip
-    replacements:
-      amd64: x64
-      386: x32
-release:
-  prerelease: true
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'
+
+# Homebrew 배포를 위한 스크립트
+brews:
+  - name: gitleaks@{{ .Major }}.{{ .Minor }}.{{ .Patch }}
+    license: 'mit'
+    repository:
+      owner: 'heechankim-gitleaks' # == Organization Name
+      name: 'homebrew-gitleaks-tap' # == "homebrew-" + Repository Name
+      branch: lgu-master
+    folder: Formula
+    url_template: "https://github.com/heechankim-gitleaks/gitleaks/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
+    description: 'Gitlekas by UCMP'
+    skip_upload: auto
+    install: |-
+      bin.install "gitleaks"
