@@ -55,6 +55,5 @@ brews:
     url_template: "https://github.com/heechankim-gitleaks/gitleaks/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
     description: 'Gitlekas by UCMP'
-    skip_upload: auto
     install: |-
       bin.install "gitleaks"
