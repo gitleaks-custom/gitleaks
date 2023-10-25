@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	GitConfig "github.com/zricethezav/gitleaks/v8/lib"
 )
@@ -30,4 +31,6 @@ func runEnable(cmd *cobra.Command, args []string) {
 
 	GitConfig.EnableGitHooks(GitConfig.PreCommitScriptPath, GitConfig.PreCommitScript)
 	GitConfig.EnableGitHooks(GitConfig.PostCommitScriptPath, GitConfig.PostCommitScript)
+
+	fmt.Println("Gitleaks Version: ", Version)
 }
