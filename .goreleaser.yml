@@ -46,7 +46,7 @@ changelog:
 
 # Homebrew 배포를 위한 스크립트
 brews:
-  - name: gitleaks@{{ .Tag }}
+  - name: gitleaks
     license: 'mit'
     repository:
       owner: 'heechankim-gitleaks' # == Organization Name
