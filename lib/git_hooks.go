@@ -1,4 +1,4 @@
-package GitConfig
+package lib
 
 import (
 	"fmt"

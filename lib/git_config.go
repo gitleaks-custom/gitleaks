@@ -1,4 +1,4 @@
-package GitConfig
+package lib
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"io"
 	"os/exec"
 	"regexp"
+	"strconv"
 	"strings"
 	"syscall"
 )
@@ -25,6 +26,26 @@ func SetGitleaksConfig(key string, value string) (string, error) {
 func GetGitleaksConfig(key string) (string, error) {
 	searchString := "Gitleaks." + key
 	return local(searchString)
+}
+
+func DeleteGitleaksConfig(key string) (string, error) {
+	searchString := "Gitleaks." + key
+	return execGitCommand("config", "--local", "--unset", searchString)
+}
+
+// Return true Only if [Gitleaks.Key = true] in .git/config
+func GetGitleaksConfigBoolean(key string) bool {
+	value, err := GetGitleaksConfig(key)
+	if err != nil {
+		return false
+	}
+
+	flag, err := strconv.ParseBool(value)
+	if err != nil {
+		return false
+	}
+
+	return flag
 }
 
 // Git Config 에서 Key 를 탐색

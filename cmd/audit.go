@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	GitConfig "github.com/zricethezav/gitleaks/v8/lib"
+	Lib "github.com/zricethezav/gitleaks/v8/lib"
 	"io"
 	"net/http"
 	"net/url"
-	"strconv"
 )
 
 func init() {
@@ -39,41 +40,56 @@ type AuditResponse struct {
 }
 
 func runAudit(cmd *cobra.Command, args []string) {
-	// 오류 발생시 Recover.
+	debugging := Lib.GetGitleaksConfigBoolean("debug")
+	if debugging {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	// 로직상 오류가 발생해도 정상 리턴
 	defer func() {
 		recover()
 		return
 	}()
 
-	// .git/config 파일 내 Gitleaks.enable = true 가 아닐 경우 리턴을 통해 함수 종료.
-	enableValue, _ := GitConfig.GetGitleaksConfig("enable")
-	isGitleaksEnable, _ := strconv.ParseBool(enableValue)
-	if !isGitleaksEnable {
-		fmt.Println("Gitleaks Disabled")
+	isEnable := Lib.GetGitleaksConfigBoolean("enable")
+	// isDebug := Lib.GetGitleaksConfigBoolean("debug")
+	if !isEnable {
+		if debugging {
+			log.Error().Msg("Gitleaks is not enabled")
+		}
 		return
 	}
 
-	backendUrl, _ := GitConfig.GetGitleaksConfig("url")
+	backendUrl, _ := Lib.GetGitleaksConfig("url")
+
+	log.Debug().Str("Url", backendUrl).Msg("Request")
 
 	u, err := url.Parse(backendUrl)
 	// net/url Parsing Error
 	if err != nil {
-		fmt.Printf("Error parsing url, %v\n", err)
+		if debugging {
+			log.Error().Msg("Error Parsing URL ," + err.Error())
+		}
 		panic(err)
 	}
 
 	// Request Handling
 	requestData, _ := json.Marshal(retrieveLocalGitInfo())
+	requestUserAgent := `Gitleaks` + "/" + Version
 
 	req, _ := http.NewRequest("POST", u.String(), bytes.NewBuffer(requestData))
-	req.Header.Set("User-Agent", `Gitleaks`+"/"+Version)
+	req.Header.Set("User-Agent", requestUserAgent)
 	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	log.Debug().RawJSON("Body", requestData).Msg("Request")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	// net/http client Error - Request 오류 시 백엔드 통신 X
 	if err != nil {
-		fmt.Printf("Error http request, %v\n", err)
+		if debugging {
+			log.Error().Msg("Http Request Error, " + err.Error())
+		}
 		panic(err)
 	}
 	defer resp.Body.Close()
@@ -82,30 +98,34 @@ func runAudit(cmd *cobra.Command, args []string) {
 	response, _ := io.ReadAll(resp.Body)
 
 	var responseData AuditResponse
+	log.Debug().RawJSON("Body", response).Msg("Response")
 	// Error During Json Unmarshaling - 백엔드 Response Type 변경 등
 	if err := json.Unmarshal([]byte(response), &responseData); err != nil {
-		fmt.Printf("Error Json Unmarshal error: %v", err)
+		if debugging {
+			log.Error().Msg("Json Unmarshal Error, " + err.Error())
+		}
 		panic(err)
 	}
 
 	responseGitConfig := responseData.Data.(map[string]interface{})["GitConfig"].(map[string]interface{})
+	log.Debug().Interface("Body.Data.GitConfig", responseGitConfig).Msg("Response")
 	for k, v := range responseGitConfig {
-		fmt.Printf("%s: %s\n", k, fmt.Sprintf("%v", v))
-		GitConfig.SetGitleaksConfig(k, fmt.Sprintf("%v", v))
+		Lib.SetGitleaksConfig(k, fmt.Sprintf("%v", v))
 	}
 
 	responseVersion := responseData.Data.(map[string]interface{})["Version"]
-	fmt.Printf("Response Version : %s\n", responseVersion)
+	log.Debug().Interface("Body.Data.Version", responseVersion).Msg("Response")
+
 }
 
 func retrieveLocalGitInfo() AuditRequest {
-	OrganizationName, _ := GitConfig.GetLocalOrganizationName()
-	RepositoryName, _ := GitConfig.GetLocalRepositoryName()
-	BranchName, _ := GitConfig.GetHeadBranchName()
-	AuthorName, _ := GitConfig.GetLocalUserName()
-	AuthorEmail, _ := GitConfig.GetLocalUserEmail()
-	CommitHash, _ := GitConfig.GetHeadCommitHash()
-	CommitTimestamp, _ := GitConfig.GetHeadCommitTimestamp()
+	OrganizationName, _ := Lib.GetLocalOrganizationName()
+	RepositoryName, _ := Lib.GetLocalRepositoryName()
+	BranchName, _ := Lib.GetHeadBranchName()
+	AuthorName, _ := Lib.GetLocalUserName()
+	AuthorEmail, _ := Lib.GetLocalUserEmail()
+	CommitHash, _ := Lib.GetHeadCommitHash()
+	CommitTimestamp, _ := Lib.GetHeadCommitTimestamp()
 
 	return AuditRequest{
 		OrganizationName,

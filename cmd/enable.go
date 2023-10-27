@@ -1,13 +1,16 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
-	GitConfig "github.com/zricethezav/gitleaks/v8/lib"
+	Lib "github.com/zricethezav/gitleaks/v8/lib"
+	"strconv"
 )
 
 func init() {
 	enableCmd.Flags().String("url", "", "Backend URL")
+	enableCmd.Flags().Bool("debug", false, "Enable debug output")
 	rootCmd.AddCommand(enableCmd)
 }
 
@@ -17,20 +20,27 @@ var enableCmd = &cobra.Command{
 	Run:   runEnable,
 }
 
-const PreCommitScript = `
-#!/bin/sh
-gitleaks protect --no-banner --verbose --staged
-`
-
 func runEnable(cmd *cobra.Command, args []string) {
+	// Setting .git/config : Gitleaks.url
+	urlFlag, _ := cmd.Flags().GetString("url")
+	Lib.SetGitleaksConfig("url", urlFlag)
 
-	// Initialize Git Configs
-	backendUrl, _ := cmd.Flags().GetString("url")
-	GitConfig.SetGitleaksConfig("url", backendUrl)
-	GitConfig.SetGitleaksConfig("enable", "true")
+	debugFlag, _ := cmd.Flags().GetBool("debug")
+	if debugFlag {
+		// If enable command with --debug flag, set Gitleaks.debug to true
+		// Using this flag, print the all commands logs
+		Lib.SetGitleaksConfig("debug", strconv.FormatBool(debugFlag))
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
 
-	GitConfig.EnableGitHooks(GitConfig.PreCommitScriptPath, GitConfig.PreCommitScript)
-	GitConfig.EnableGitHooks(GitConfig.PostCommitScriptPath, GitConfig.PostCommitScript)
+	// Setting .git/config : Gitleaks.enable
+	Lib.SetGitleaksConfig("enable", "true")
 
-	fmt.Println("Gitleaks Version: ", Version)
+	// Setting .git/hooks/pre-commit
+	Lib.EnableGitHooks(Lib.PreCommitScriptPath, Lib.PreCommitScript)
+
+	// Setting .git/hooks/post-commit
+	Lib.EnableGitHooks(Lib.PostCommitScriptPath, Lib.PostCommitScript)
+
+	log.Debug().Msg("Gitleaks Enabled")
 }
