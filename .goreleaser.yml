@@ -62,8 +62,9 @@ brews:
 
 winget:
   - name: gitleaks
-    license: "mit"
     publisher: "LG Uplus UCMP"
+    short_description: "Gitlekas by UCMP"
+    license: "mit"
     repository:
       owner: 'heechankim-gitleaks' # Organization Name
       name: 'homebrew-tap' # Repository Name
