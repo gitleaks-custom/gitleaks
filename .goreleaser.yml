@@ -59,3 +59,13 @@ brews:
     custom_require: "../custom_download_strategy"
     install: |-
       bin.install "gitleaks"
+
+winget:
+  - name: gitleaks
+    license: "mit"
+    repository:
+      owner: 'heechankim-gitleaks' # Organization Name
+      name: 'homebrew-tap' # Repository Name
+    url_template: "https://github.com/heechankim-gitleaks/gitleaks/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
+    description: 'Gitlekas by UCMP'
