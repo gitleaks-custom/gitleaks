@@ -56,6 +56,6 @@ brews:
     homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
     description: 'Gitlekas by UCMP'
     download_strategy: GitHubPrivateRepositoryReleaseDownloadStrategy
-    custom_require: custom_download_strategy
+    custom_require: "../custom_download_strategy"
     install: |-
       bin.install "gitleaks"
