@@ -49,8 +49,8 @@ brews:
   - name: gitleaks
     license: 'mit'
     repository:
-      owner: 'heechankim-gitleaks' # == Organization Name
-      name: 'homebrew-gitleaks-tap' # == "homebrew-" + Repository Name
+      owner: 'heechankim-gitleaks' # Organization Name
+      name: 'homebrew-tap' # Repository Name
     folder: Formula
     url_template: "https://github.com/heechankim-gitleaks/gitleaks/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
     homepage: 'https://github.com/heechankim-gitleaks/gitleaks'
