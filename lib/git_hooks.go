@@ -6,11 +6,12 @@ import (
 	"strings"
 )
 
-const PreCommitScript = "gitleaks protect --no-banner --verbose --staged"
-const PostCommitScript = "gitleaks audit"
-
-const PreCommitScriptPath = ".git/hooks/pre-commit"
-const PostCommitScriptPath = ".git/hooks/post-commit"
+const (
+	PreCommitScriptPath  = ".git/hooks/pre-commit"
+	PostCommitScriptPath = ".git/hooks/post-commit"
+	PreCommitScript      = "gitleaks protect --no-banner --verbose --staged"
+	PostCommitScript     = "gitleaks audit"
+)
 
 func getFileContents(filepath string) (string, error) {
 	content, err := os.ReadFile(filepath)
